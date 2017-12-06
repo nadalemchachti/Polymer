@@ -1,0 +1,94 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="my-view3">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+      paper-button{
+        background-color: black;
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 15px;
+        width: 40%;
+        height: 50px;
+        margin: 5px 5px 5px 5px ;
+      }
+      .title{
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 50px;
+        text-shadow: 2px 2px 2px black;
+        margin: 5px 5px 5px 5px ;
+      }
+       #rechercher{
+        background-color: black;
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 10px;
+        width: 5%;
+        height: 30px;
+      
+      }
+      #search{
+        width: 20%;
+        height: 30px;
+        margin-left:60%;
+      }
+    </style>
+<div class="card"><input id="search"/><paper-button id="rechercher" on-click="recherche">Search</paper-button></div>
+    <div class="card" align="center">
+      
+      <h1 class="title">Starships</h1>
+      <iron-ajax id="getstarships" auto url = "https://swapi.co/api/starships"
+                      handle-as = "json"
+                      on-response = "handleResponse"
+                      debounce-duration = "500">
+            </iron-ajax>
+            <template is="dom-repeat" items="{{starships}}" as="starship">
+             <paper-button raised on-click="redirect">
+              <p>[[starship.name]]</p>
+           </paper-button>
+          </template>
+    </div>
+  </template>
+
+  <script>
+    class MyView3 extends Polymer.Element {
+      static get is() { return 'my-view3'; }
+       handleResponse(resp) {
+                this.starships = resp.detail.response.results;
+            }
+            recherche(){
+        this.$.getstarships.url="https://swapi.co/api/starships/?search="+this.$.search.value;
+        this.$.getstarships.generateRequest();
+      }
+
+        redirect(id){
+              
+              var x = id.model.__data.starship.url.split("/");
+              location.href="/starships/"+x[5];
+                
+            }
+       
+    }
+
+    window.customElements.define(MyView3.is, MyView3);
+  </script>
+</dom-module>

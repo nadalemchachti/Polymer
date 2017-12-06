@@ -1,0 +1,144 @@
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="my-movie">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+      paper-button{
+        background-color: black;
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 15px;
+        width: 40%;
+        height: 50px;
+        margin: 5px 5px 5px 5px ;
+      }
+      .title{
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 40px;
+        text-shadow: 2px 2px 2px black;
+        margin: 5px 5px 5px 5px ;
+      }
+      .title2{
+        color: #FFD700 ;
+        font-family: fantasy;
+        font-size: 20px;
+        text-shadow: 2px 2px 2px black;
+        margin: 5px 5px 5px 5px ;
+      }
+
+    </style>
+
+           <app-route route="{{route}}" pattern="/:postId" data="{{routeData}}" tail="{{subroute}}"></app-route>
+
+            <iron-ajax auto url = "https://swapi.co/api/films/{{routeData.postId}}/"
+                      handle-as = "json"
+                      on-response = "handleResponse"
+                      last-response="{{movie}}"
+                      debounce-duration = "500">
+            </iron-ajax>
+
+            <iron-ajax  
+                      id="per"
+                      url = ""
+                      handle-as = "json"
+                      on-response = "person"
+                      last-response="{{people}}"
+                      debounce-duration = "500">
+            </iron-ajax>
+             <iron-ajax  
+                      id="st"
+                      url = ""
+                      handle-as = "json"
+                      on-response = "starships"
+                      last-response="{{stars}}"
+                      debounce-duration = "500">
+            </iron-ajax>
+
+
+
+    <div class="card">
+      <h1 class = "title">{{movie.title}}</h1>
+             <p>Director : {{movie.director}}</p>
+             <p>Producer : {{movie.producer}}</p>
+             <h2 class = "title2">Characters </h2>
+                  <template is="dom-repeat" items="{{tab_acteurs}}" as="acteur">
+                  <a href="/people/{{acteur.url}}"   tabindex="-1">
+                  <paper-button  raised >
+                     {{acteur.name}}
+                  </paper-button></a><br> </template>
+                 <h2 class = "title2">Starships </h2>
+                <template is="dom-repeat" items="{{tab_starships}}" as="star">
+                <a href="/starships/{{star.url}}" tabindex="-1"><paper-button  raised >{{star.name}} </paper-button></a><br>
+               </template>
+               
+           
+              
+
+
+            
+          
+            
+          
+    </div>
+  </template>
+
+  <script>
+    class MyMovie extends Polymer.Element {
+      static get is() { return 'my-movie'; }
+      static get properties(){
+        return{
+          tab_acteurs:{
+            type: Array,
+            value: []
+          },
+          tab_starships:{
+            type: Array,
+            value: []
+          }
+        }
+      }
+       handleResponse(resp) {
+               var tab =[];
+               var table = [];
+               this.tab_acteurs = [];
+               this.tab_starships=[];
+               for(let i=0; i<this.movie.characters.length;i++)
+               {
+                tab[i]= this.movie.characters[i].split("/")[5];
+                this.$.per.url = "https://swapi.co/api/people/"+tab[i]+"/";
+                 this.$.per.generateRequest();
+               }
+               for(let i=0; i<this.movie.starships.length;i++)
+               {
+                table[i]= this.movie.starships[i].split("/")[5];
+                this.$.st.url = "https://swapi.co/api/starships/"+table[i]+"/";
+                 this.$.st.generateRequest();
+               }
+            }
+
+      person(e){
+        this.push('tab_acteurs',{name : e.detail.__data.response.name , url: e.detail.url.split("/")[5]});
+
+      }
+      starships(s){
+        this.push('tab_starships',{name : s.detail.__data.response.name , url: s.detail.url.split("/")[5]});
+
+      }
+       
+    }
+
+    window.customElements.define(MyMovie.is, MyMovie);
+  </script>
+</dom-module>
